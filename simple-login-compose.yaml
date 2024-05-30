@@ -25,9 +25,9 @@ services:
     volumes:
       - $DB_BACKUP_VOLUME/backup:/backup
     environment:
-      - POSTGRES_HOST=my_postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASS=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASS=$POSTGRES_PASS
       - MAX_BACKUPS=3
       - INIT_BACKUP=0
       - CRON_TIME=0 3 * * *
