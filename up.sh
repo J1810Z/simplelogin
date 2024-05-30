@@ -1,15 +1,21 @@
 #!/bin/env bash
 
+# Process .env file argument
+env=".env"
+if [ -n "$1" ]; then
+    env=$1
+fi
+
 ere_quote() {
   # this escapes regex reserved characters
   # it also escapes / for subsequent use with sed
   sed 's/[][\/\.|$(){}?+*^]/\\&/g' <<< "$*"
 }
 
-DOMAIN=$(grep "^DOMAIN" .env | awk -F '=' '{print $2}')
-SUBDOMAIN=$(grep "^SUBDOMAIN" .env | awk -F '=' '{print $2}')
-PG_USERNAME=$(grep "^POSTGRES_USER" .env | awk -F '=' '{print $2}')
-PG_PASSWORD=$(grep "^POSTGRES_PASSWORD" .env | awk -F '=' '{print $2}')
+DOMAIN=$(grep "^DOMAIN" $env | awk -F '=' '{print $2}')
+SUBDOMAIN=$(grep "^SUBDOMAIN" $env | awk -F '=' '{print $2}')
+PG_USERNAME=$(grep "^POSTGRES_USER" $env | awk -F '=' '{print $2}')
+PG_PASSWORD=$(grep "^POSTGRES_PASSWORD" $env | awk -F '=' '{print $2}')
 
 if [ -z "$SUBDOMAIN" ]; then
   SUBDOMAIN="app"
@@ -39,4 +45,4 @@ sed -e "s/myuser/${PG_USERNAME}/g" ./postfix/conf.d/pgsql-transport-maps.cf.tpl 
 sed -i -e "s/mypassword/$(ere_quote ${PG_PASSWORD})/g" ./postfix/conf.d/pgsql-transport-maps.cf
 sed -i -e "s/domain.tld/${DOMAIN}/g" ./postfix/conf.d/pgsql-transport-maps.cf
 
-docker compose up --detach $@
+docker compose --env-file $env up --detach $@
