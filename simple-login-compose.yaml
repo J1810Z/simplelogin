@@ -18,6 +18,22 @@ services:
       - ./db:/var/lib/postgresql/data
     restart: unless-stopped
 
+  postgres-cron-backup:
+    image: ghcr.io/mentos1386/postgres-cron-backup
+    depends_on:
+      - sl-db
+    volumes:
+      - $DB_BACKUP_VOLUME/backup:/backup
+    environment:
+      - POSTGRES_HOST=my_postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASS=${POSTGRES_PASSWORD}
+      - MAX_BACKUPS=3
+      - INIT_BACKUP=0
+      - CRON_TIME=0 3 * * *
+      - GZIP_LEVEL=9
+    restart: unless-stopped
+
   migration:
     image: simplelogin/app:$SL_VERSION
     command: [ "alembic", "upgrade", "head" ]
